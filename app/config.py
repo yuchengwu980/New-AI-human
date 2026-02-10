@@ -1,7 +1,6 @@
 from functools import lru_cache
 from pathlib import Path
 
-from app.utils.paths import runtime_path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -42,16 +41,9 @@ class Settings(BaseSettings):
         Path(self.audio_dir).mkdir(parents=True, exist_ok=True)
         Path(self.events_dir).mkdir(parents=True, exist_ok=True)
 
-    def resolve_runtime_paths(self) -> None:
-        self.output_dir = str(runtime_path(self.output_dir))
-        self.audio_dir = str(runtime_path(self.audio_dir))
-        self.events_dir = str(runtime_path(self.events_dir))
-        self.last_event_file = str(runtime_path(self.last_event_file))
-
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
     settings = Settings()
-    settings.resolve_runtime_paths()
     settings.ensure_dirs()
     return settings

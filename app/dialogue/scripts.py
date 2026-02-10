@@ -1,4 +1,4 @@
-from app.utils.paths import resource_path
+from pathlib import Path
 
 
 class ScriptLibrary:
@@ -8,14 +8,14 @@ class ScriptLibrary:
 
     @staticmethod
     def _load_lines(path: str) -> list[str]:
-        p = resource_path(path)
+        p = Path(path)
         if not p.exists():
             return ['欢迎来到直播间，我们正在准备中。']
         return [line.strip() for line in p.read_text(encoding='utf-8').splitlines() if line.strip()]
 
     @staticmethod
     def _load_reply_templates(path: str) -> dict[str, str]:
-        p = resource_path(path)
+        p = Path(path)
         defaults = {
             'greeting': '你好，欢迎来到数字人操作平台演示。',
             'price': '关于价格，我们有基础版和专业版，欢迎私信了解详细方案。',

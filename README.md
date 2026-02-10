@@ -127,42 +127,6 @@ python -m venv .venv
 - `output/events/last_event.json`
 - `output/events/history_YYYYMMDD.jsonl`
 
-## 2.5 Windows 可分发打包（免 Python）
-
-目标产物：`NewAIHuman_Win64.zip`，用户解压后双击 `NewAIHuman.exe` 即可运行。
-
-### 本地打包命令（Windows）
-
-```bat
-build_win.bat
-```
-
-脚本会自动完成：
-1. 创建 `.venv`（若不存在）
-2. 安装 `requirements.txt`
-3. 安装 `pyinstaller`
-4. 打包桌面入口 `app.desktop.main_desktop`
-5. 产出 `dist/NewAIHuman/NewAIHuman.exe`
-6. 生成 `NewAIHuman_Win64.zip`（包含 exe、output 目录和 `README_使用说明.txt`）
-
-### 资源与路径说明
-
-- 打包时通过 PyInstaller `--add-data "scripts;scripts"` 打入脚本资源：
-  - `scripts/idle_lines_zh.txt`
-  - `scripts/reply_templates_zh.txt`
-- 程序内已实现资源路径兼容（支持 `sys._MEIPASS`）。
-- 运行时输出写到可执行文件同级目录下：
-  - `output/audio`
-  - `output/events`
-
-### CI 自动打包（可选）
-
-已提供 GitHub Actions：`.github/workflows/build-windows.yml`
-- 触发方式：
-  - 手动 `workflow_dispatch`
-  - push tag `v*`
-- 产物：上传 `NewAIHuman_Win64.zip` artifact
-
 ## 3. 如何测试（网页 + curl）
 
 ### 3.1 网页方式
