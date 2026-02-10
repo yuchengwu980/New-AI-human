@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+output/audio/*.wav
+output/events/*.jsonl
+output/events/last_event.json
