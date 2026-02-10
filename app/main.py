@@ -12,14 +12,14 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from app.config import get_settings
+from app.dialogue.scripts import ScriptLibrary
 from app.dialogue.state_machine import DialogueStateMachine
-from app.integrations.input_adapter import from_http_payload
 from app.models import Comment
 from app.outputs.writer import OutputWriter
 from app.pipeline.orchestrator import PipelineOrchestrator
-from app.providers.factory import build_script_library, build_tts_provider
 from app.sources.mock_source import MockSource
 from app.sources.platform_api import PlatformApiSource
+from app.tts.silent_wav import SilentWavTTS
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(name)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -27,10 +27,10 @@ logger = logging.getLogger(__name__)
 settings = get_settings()
 mock_source = MockSource()
 platform_source = PlatformApiSource(settings)
-script_lib = build_script_library(settings)
+script_lib = ScriptLibrary()
 state_machine = DialogueStateMachine(script_lib, cooldown_seconds=settings.cooldown_seconds)
 writer = OutputWriter(settings.audio_dir, settings.events_dir, settings.last_event_file)
-orchestrator = PipelineOrchestrator(settings, state_machine, build_tts_provider(settings), writer)
+orchestrator = PipelineOrchestrator(settings, state_machine, SilentWavTTS(), writer)
 idle_task: asyncio.Task | None = None
 
 templates = Jinja2Templates(directory='app/ui/templates')
@@ -77,21 +77,6 @@ def push_mock(comment: Comment) -> dict:
         'dedup_hit': decision.dedup_hit,
         'ratelimit_hit': decision.ratelimit_hit,
         'reason': decision.reason,
-    }
-
-
-@app.post('/comment')
-def push_comment(payload: dict) -> dict:
-    comment = from_http_payload(payload)
-    decision = orchestrator.handle_comment(comment)
-    return {
-        'accepted': decision.accepted,
-        'category': decision.category,
-        'action': decision.action,
-        'dedup_hit': decision.dedup_hit,
-        'ratelimit_hit': decision.ratelimit_hit,
-        'reason': decision.reason,
-        'msg_id': payload.get('msg_id'),
     }
 
 

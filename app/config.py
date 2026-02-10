@@ -1,7 +1,6 @@
 from functools import lru_cache
 from pathlib import Path
 
-from app.utils.paths import runtime_path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -27,18 +26,6 @@ class Settings(BaseSettings):
     events_dir: str = 'output/events'
     last_event_file: str = 'output/events/last_event.json'
 
-
-    llm_provider: str = 'mock'
-    llm_openai_api_key: str = ''
-    llm_openai_model: str = 'gpt-4o-mini'
-    llm_openai_timeout_seconds: int = 10
-
-    tts_provider: str = 'silent'
-    tts_openai_api_key: str = ''
-    tts_openai_model: str = 'gpt-4o-mini-tts'
-    tts_openai_voice: str = 'alloy'
-    tts_openai_timeout_seconds: int = 10
-
     platform_api_enabled: bool = False
     platform_type: str = 'generic'
     platform_poll_interval: int = 2
@@ -54,16 +41,9 @@ class Settings(BaseSettings):
         Path(self.audio_dir).mkdir(parents=True, exist_ok=True)
         Path(self.events_dir).mkdir(parents=True, exist_ok=True)
 
-    def resolve_runtime_paths(self) -> None:
-        self.output_dir = str(runtime_path(self.output_dir))
-        self.audio_dir = str(runtime_path(self.audio_dir))
-        self.events_dir = str(runtime_path(self.events_dir))
-        self.last_event_file = str(runtime_path(self.last_event_file))
-
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
     settings = Settings()
-    settings.resolve_runtime_paths()
     settings.ensure_dirs()
     return settings

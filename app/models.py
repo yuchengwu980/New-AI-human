@@ -8,7 +8,6 @@ class Comment(BaseModel):
     text: str
     ts: float
     source: Literal['mock', 'platform_api'] = 'mock'
-    msg_id: str | None = None
     raw: dict[str, Any] | None = None
 
 
