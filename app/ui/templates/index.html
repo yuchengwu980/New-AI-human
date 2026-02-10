@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>数字人操作平台 MVP 控制台</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .row { margin-bottom: 10px; }
+    input, button { padding: 8px; font-size: 14px; }
+    #recent, #event { white-space: pre-wrap; background: #f6f6f6; padding: 10px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h2>数字人操作平台（控制器）MVP</h2>
+  <div class="row">
+    <input id="user" placeholder="user_id" value="u1" />
+    <input id="text" placeholder="输入评论" size="40" />
+    <button onclick="sendComment()">发送</button>
+  </div>
+  <div class="row"><strong>最近评论与决策</strong><div id="recent"></div></div>
+  <div class="row"><strong>last_event.json</strong><div id="event"></div></div>
+
+<script>
+async function sendComment() {
+  const user_id = document.getElementById('user').value;
+  const text = document.getElementById('text').value;
+  const body = { user_id, text, ts: Date.now()/1000, source: 'mock' };
+  const res = await fetch('/api/mock/push', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(body)
+  });
+  const data = await res.json();
+  console.log(data);
+  await refresh();
+}
+
+async function refresh() {
+  const res = await fetch('/api/ui/state');
+  const data = await res.json();
+  document.getElementById('recent').textContent = JSON.stringify(data.recent, null, 2);
+  document.getElementById('event').textContent = JSON.stringify(data.last_event, null, 2);
+}
+setInterval(refresh, 2000);
+refresh();
+</script>
+</body>
+</html>
